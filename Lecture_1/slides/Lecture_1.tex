@@ -1,0 +1,136 @@
+%%%%%%%%%%%%   LaTeX Preamble %%%%%%%%%%%%%%
+
+\documentclass{beamer}
+
+% list all packages
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{latexsym}
+\usepackage{color}
+\usepackage{mycommands}
+
+% slide theme
+\usetheme{Berlin}
+\usecolortheme{mit}
+
+% Set Logo
+\pgfdeclareimage[height=0.5cm]{mit-logo}{../mit-logo.pdf}
+\logo{\vspace{-0.25cm}\pgfuseimage{mit-logo}\hspace*{0.025cm}}
+
+% Include Custom environments
+% \input{../environments.tex}
+
+% Title Page
+\title[Introduction to Computer Programming]{Introduction to Computer Programming}
+\author[]{22.901 Introduction to Computer Programming for Nuclear Engineers}
+\institute[\insertpagenumber]{}
+\date{January 17, 2012} 
+
+% -----------------------------------------------------------------------------
+\begin{document}
+% -----------------------------------------------------------------------------
+
+% Inset title page
+\frame{\titlepage}
+
+% Outline slide
+\begin{frame}{Outline}
+  \tableofcontents{}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Programming Languages - Nuclear Perpsective}
+\begin{itemize}
+
+  \item Numerical Programming Languages
+  \begin{itemize}
+      \item Fortran, C, C++, etc.
+      \item compiled languages
+      \item very fast, low-level programming
+  \end{itemize}
+
+  \item Scripting Languages
+    \begin{itemize}
+      \item Python, Perl, Visual Basic,etc.
+      \item interpreted languges
+      \item good for data/file manipulation
+      \item not as fast, high-level programming
+    \end{itemize}
+
+  \item Developmental Languages
+    \begin{itemize}
+      \item MATLAB, Python, etc.
+      \item great enviorment for algorithm development
+      \item excellent post-processing capability
+      \item recommend for HWs and projects
+    \end{itemize}
+
+\end{itemize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Coding Jargon}
+
+\begin{itemize} 
+
+  \item Source Code - an ASCII text file development by the programmer with code in it
+  \vfill\item Compiler - the program that converts the source code to machine code
+  \begin{itemize}
+   \item C compilers - gcc, icc ...
+   \item C++ compilers - g++ ...
+   \item Fortran compilers - f77, g77, f90, f95, gfortran, ifort ...
+  \end{itemize}
+  \vfill\item Program - the compiled source code
+
+\end{itemize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Fortran Programming Language}
+
+  \begin{itemize}
+    \item In this course we will focus of Fortran
+    \item Many nuclear engineering codes are \emph{still} developed in Fortran!
+
+    \vfill\item Classical Fortran
+      \begin{itemize}
+	\item FORTRAN II-IV and Fortran 66 (1958-1966)
+	\item FORTRAN 77 - standard programming language (still seen today!)
+      \end{itemize}
+
+    \vfill\item \alert{Modern Fortran}
+    \begin{itemize}
+      \item Fortran 90,95,2003,2008
+      \item free format source code, structures, dynamic memory allocation
+    \end{itemize}
+
+  \end{itemize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{How can I use Fortran?}
+\begin{itemize}
+ 
+  \item Windows - Download Cygwin and get the gfortran compilers
+  \vfill\item Mac/Linux - Download gfortran compilers
+  \vfill\item In 22.901 we will SSH to the department's linux cluster
+  \begin{itemize}
+    \item Windows - download SecureFX/SecureCRT from MIT IST site
+    \item Mac/Linux - SSH right from the terminal
+  \end{itemize}
+  \vfill\item To Login the following info is needed for SecureCRT
+  \begin{itemize}
+    \item hostname: \texttt{cheezit.mit.edu}
+    \item username: \texttt{fortran12}
+    \item passowrd: \texttt{22.901IAP2012}
+    \item Mac/Linux: \texttt{ssh fortran12@cheezit.mit.edu}
+  \end{itemize}
+  \vfill\item see Stellar document about navigating a Linux shell
+\end{itemize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{The Simplest Fortran Code}
+\vfill
+\begin{center}
+  \Huge{EXAMPLE 1}
+\end{center}
+\vfill
+\end{frame}
+%------------------------------------------------------------------------------
+\end{document}

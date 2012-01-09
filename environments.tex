@@ -1,0 +1,112 @@
+% \setbeamertemplate{blocks}[rounded]
+\setbeamertemplate{blocks}[rounded][shadow=true]
+
+% \setbeamertemplate{headline}[default]
+\setbeamertemplate{navigation symbols}{}
+
+% \beamerdefaultoverlayspecification{<+->}
+
+% Set color for 'alert' text
+\setbeamercolor{alerted text}{fg=blue}
+
+%\setbeamercolor{section in toc}
+
+% Modify some default font sizes
+\setbeamerfont{itemize/enumerate body}{size=\normalfont}
+\setbeamerfont{itemize/enumerate subbody}{size=\smaller, shape=\upshape}
+\setbeamerfont{frametitle}{size=\large, series=\bfseries}
+
+
+% \setbeamertemplate{bibliography entry title}{}
+% \setbeamertemplate{bibliography entry location}{}
+% \setbeamertemplate{bibliography entry note}{}
+\setbeamertemplate{bibliography item}[text] 
+
+% \setbeamertemplate{items}[ball]
+% \setbeamertemplate{itemize subitem}[circle-symbol]
+% \setbeamertemplate{background canvas}[vertical shading][bottom=mitgray!25,top=white]
+
+% Use the shrink option to squeeze lots of text on a slide
+
+% \frame[shrink]{
+
+% …
+
+% }
+
+\colorlet{dark green}{green!50!black}
+
+\newcommand{\packin}{\setlength\abovedisplayskip{2pt}\setlength\belowdisplayskip{2pt}}
+
+%\newcommand{\numberInBox}[2][0.9]%
+%	{\scalebox{#1}{{\tikz \draw (0,0) node[refbox] {\makebox[\totalheight]{#2}};}}}
+
+%\newcommand{\enumref}[2][0.9] {\numberInBox[#1]{\ref{#2}}}
+
+
+% Small arrow pointing down and hooking right
+\newcommand{\drarrow}{\scalebox{1.5}{\reflectbox{\rotatebox[c]{180}{$\boldsymbol{\smash[b]{\Rsh}}$}}}}
+
+\newenvironment{prettydescript}[1]
+	{\begin{list}{}%
+		{\renewcommand\makelabel[1]{\itshape\bfseries\color{mitred} ##1:\hfill}%
+		\settowidth\labelwidth{\makelabel{#1}}%
+		\setlength\leftmargin{\labelwidth}%
+		\addtolength\leftmargin{\labelsep}}}%
+	{\end{list}}
+
+\newenvironment{customdescript}[1]
+	{\begin{list}{}%
+		{\renewcommand\makelabel[1]{\bfseries\color{mitred} ##1\hfill}%
+		\settowidth\labelwidth{\makelabel{#1}}%
+		\setlength\leftmargin{\labelwidth}%
+		\addtolength\leftmargin{\labelsep}}}%
+	{\end{list}}
+
+\makeatletter
+
+\newenvironment{customlist}[2]{
+  \ifnum\@itemdepth >2\relax\@toodeep\else
+      \advance\@itemdepth\@ne%
+      \beamer@computepref\@itemdepth%
+      \usebeamerfont{itemize/enumerate \beameritemnestingprefix body}%
+      \usebeamercolor[fg]{itemize/enumerate \beameritemnestingprefix body}%
+      \usebeamertemplate{itemize/enumerate \beameritemnestingprefix body begin}%
+      \begin{list}
+        {
+            \usebeamertemplate{itemize \beameritemnestingprefix item}
+        }
+        { \leftmargin=#1 \itemindent=#2
+            \def\makelabel##1{%
+              {%  
+                  \hss\llap{{%
+                    \usebeamerfont*{itemize \beameritemnestingprefix item}%
+                        \usebeamercolor[fg]{itemize \beameritemnestingprefix item}##1}}%
+              }%  
+            }%  
+        }
+  \fi
+}
+{
+  \end{list}
+  \usebeamertemplate{itemize/enumerate \beameritemnestingprefix body end}%
+}
+\makeatother
+
+\newenvironment<>{varblock}[2][\textwidth]{%
+  \setlength{\textwidth}{#1}
+  \begin{actionenv}#3%
+    \def\insertblocktitle{#2}%
+    \par%
+    \usebeamertemplate{block begin}}
+  {\par%
+    \usebeamertemplate{block end}%
+  \end{actionenv}}
+
+%% Notational commands:
+\newcommand{\params}{\ensuremath{\xi}}
+\newcommand{\vparms}{\ensuremath{\gvect{\params}}}
+\renewcommand{\thefootnote}{\ensuremath{\fnsymbol{footnote}}}
+\setcounter{footnote}{2}
+\renewcommand{\thempfootnote}{\ensuremath{\fnsymbol{mpfootnote}}}
+\newcommand{\newsubsection}[1]{\subsection{#1}\setcounter{subsection}{0}}
