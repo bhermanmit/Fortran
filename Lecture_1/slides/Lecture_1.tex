@@ -35,7 +35,9 @@
 
 % Outline slide
 \begin{frame}{Outline}
-  \tableofcontents{}
+  \begin{itemize}
+   \item Intro to programming
+  \end{itemize}
 \end{frame}
 %------------------------------------------------------------------------------
 \begin{frame}{Programming Languages - Nuclear Perpsective}
@@ -125,12 +127,92 @@
 \end{itemize}
 \end{frame}
 %------------------------------------------------------------------------------
+\begin{frame}{How to Compile Fortran Code with \texttt{gfortran}}
+  \begin{itemize}
+    \item Compile and Link \\
+      \texttt{gfortran -o myCode myCode.f90}
+    \vfill\item Compile only\\
+      \texttt{gfortran -o myCode.o -c myCode.f90}
+    \vfill\item Link only\\
+      \texttt{gfortran -o myCode myCode.o}
+    \vfill\item To include external files use \texttt{-I<path>}
+    \vfill\item To link external libraries use \texttt{-L<path>}
+  \end{itemize}
+\end{frame}
+%------------------------------------------------------------------------------
 \begin{frame}{The Simplest Fortran Code}
 \vfill
 \begin{center}
   \Huge{EXAMPLE 1}
 \end{center}
 \vfill
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Interacting with the User}
+\begin{itemize}
+  \item You may want to see what your code does!
+  \vfill\item Use \texttt{print *,'str1',var1,var2,var3}
+    \begin{itemize}
+      \item This will print to the terminal screen (STDOUT) on one line 
+      \item There are more advanced formatting methods (save for later)
+    \end{itemize}
+  \vfill\item To read something in from the user, use \texttt{read *,var1,var2}
+  \vfill\item So now as a right of passage, print ``Hello World!'' to the screen
+\end{itemize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Hello World! Code}
+ \begin{center}
+  \Huge{EXAMPLE 2}
+\end{center}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Variables}
+\begin{itemize}
+  \item An ASCII alphanumeric word that represents a space in memory
+  \item In Fortran the first character must be a letter (not case sensitive!!)
+  \item By default variables beginning with I-L are integers, all else are reals (floats)
+  \item This is the implicit naming structure of Fortran, later we will declare explicitly
+  \item Some examples (Real or Integer ...)::
+    \begin{itemize}
+      \item \texttt{HYP} - ??
+      \item \texttt{K9} - ??
+      \item \texttt{pi} - ??
+      \item \texttt{9X\_Y} - ??
+    \end{itemize}
+\end{itemize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Simple Math}
+\begin{itemize}
+  \item Order of Operation Applies!
+  \vfill\item Parentheses - ()
+  \item Exponent - $**$
+   \vfill \begin{itemize}
+      \item if exponent is a whole number, list as integer (e.g. 2 not 2.0)
+    \end{itemize}
+  \vfill\item Multiplication/Division - *,/
+  \vfill\item Addition/Subtraction - +,-
+  \vfill\item Mathematical expressions should be of the same type (integer,real,etc.)
+    \begin{itemize}
+      \item $a=2$, $b=3$, $c=5$, $d=4$
+      \item $e = (d + c)**a/b + d$ ???
+    \end{itemize}
+  \vfill\item Modulo - \texttt{a = mod(x,y)}
+\end{itemize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{End of Class/External Assignment}
+Write a code to do the following:
+\begin{enumerate}
+  \item Ask user to enter any whole number 1-9
+  \vfill\item Read in the number (real or integer??)
+  \vfill\item Multiply the number by 9
+  \vfill\item Add both digits together (hint: use Modulo)
+  \vfill\item Subtract by 5
+  \vfill\item Print out result \\ \vfill
+\center{Try different numbers, notice anything??}
+\end{enumerate}
 \end{frame}
 %------------------------------------------------------------------------------
 \end{document}
