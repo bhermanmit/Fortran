@@ -1,0 +1,238 @@
+%%%%%%%%%%%%   LaTeX Preamble %%%%%%%%%%%%%%
+
+\documentclass{beamer}
+
+% list all packages
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{latexsym}
+\usepackage{color}
+\usepackage{mycommands}
+
+% slide theme
+\usetheme{Berlin}
+\usecolortheme{mit}
+
+% Set Logo
+\pgfdeclareimage[height=0.5cm]{mit-logo}{../../mit-logo.pdf}
+\logo{\vspace{-0.25cm}\pgfuseimage{mit-logo}\hspace*{0.025cm}}
+
+% Include Custom environments
+% \input{../environments.tex}
+
+% Title Page
+\title[Data Types and Intrinsic Functions]{Data Types and Intrinsic Functions}
+\author[]{22.901 Introduction to Computer Programming for Nuclear Engineers}
+\institute[\insertpagenumber]{}
+\date{January 19, 2012} 
+
+% -----------------------------------------------------------------------------
+\begin{document}
+% -----------------------------------------------------------------------------
+
+% Inset title page
+\frame{\titlepage}
+
+% Outline slide
+\begin{frame}{Outline}
+  \begin{itemize}
+   \item Intro to programming
+  \end{itemize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Ensuring Explicit Variable Declaration}
+
+  \begin{itemize}
+    
+    \item Lecture 1 highlighted that Fortran has implicit type designation depending on the first letter
+    \vfill\item In reality, we do not want to be restricted to this so we will \emph{declare} all varibles
+    \vfill\item When declaring variables we give the type, attributes, comments and other options
+    \vfill\item If we forget to declare a variable, Fortran will use the implicit naming scheme!
+      \begin{itemize}
+	\item What is the danger in this?
+      \end{itemize}
+    \vfill\item To ensure that no variable is declared implicitly we use \texttt{implicit none}
+    \vfill\item This statement should be listed a the top of every routine!
+
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{DataTypes}
+
+  \begin{itemize}
+    \item \textbf{integer} for exact whole numbers
+    \vfill\item \textbf{real} for approximate, fractional numbers
+    \vfill\item \textbf{complex} for complex, fraction numbers
+    \vfill\item \textbf{logical} for boolean values \texttt{.true.} and \texttt{.false.}
+    \vfill\item \textbf{character} for strings of characters
+    \vfill\item \alert{Note:} strings are constructured from an \emph{array} of characters 
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{When to use Integer vs. Real}
+
+Integers::
+  \begin{itemize}
+    \item Always think to yourself is this variable always a whole number?
+    \item Loop counts or loop limits
+    \item An index into an array
+    \item For error codes
+  \end{itemize}
+
+\vfill Reals::
+  \begin{itemize}
+    \item Are held as floating-point values 
+    \item Can be defined with decimals and exponents
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{How to declare a variable}
+
+  \texttt{integer  :: i                   ! loop iteration counter for x} \\
+  \texttt{real     :: flux                ! scalar for total neutron flux} \\
+  \texttt{logical  :: finished = .false.  ! code completed?} \\
+  \texttt{character(len=8) :: astr        ! a string} \\
+\vfill 
+ \begin{itemize}
+    \item All of the different type of declarations are above
+    \vfill\item You can set values right in the declarations
+    \vfill\item The '::' symbol separates the type info from the variable
+    \vfill\item \alert{Single vs. Double Precision}
+      \begin{itemize}
+	\item Default is 4 bytes (single precision) real $\equiv$ real(4)
+	\item To get double precision use real(8), 8 bytes
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Type Conversions}
+
+\textbf{In any expression it is important to have the same variable type!}
+\vfill
+  \begin{itemize}
+    \item\texttt{real(arg)} -- converts \texttt{arg} to a real(4)
+    \vfill\item\texttt{int(arg)} -- converts \texttt{arg} to a integer(4)
+    \vfill\item\texttt{dble(arg)} -- converts \texttt{arg} to a real(8).
+    \vfill\item\texttt{ceiling(x)} -- smallest integer greater or equal to \texttt{x}
+    \vfill\item\texttt{floor(x)} -- largest integer less or equal to \texttt{x}
+    \vfill\item\texttt{nint(x)} -- nearest integer to \texttt{x}
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}
+\begin{center}
+\Huge{Example 1}
+\end{center}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Fortran Intrinsic Functions}
+
+Fortran intrinsic functions are built-in routines that you can call
+\vfill
+\begin{itemize}
+  \item \texttt{y = sqrt(x)}
+  \vfill\item \texttt{pi = 4.0*atan(1.0)}
+  \vfill\item \texttt{z = exp(3.0*y)}
+  \vfill\item \texttt{u = log(x)} natural log use \texttt{log10} for base 10
+  \vfill\item \texttt{sin(x),cos(x),tan(x) ...} {\color{red}angles are in rads}
+  \vfill\item \texttt{max(x,y), min(x,y)}
+\end{itemize}
+\vfill
+There are so many, please search internet if you are looking for something specific!
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Character Type}
+  \begin{itemize}
+    \item Used when strings of characters are required
+    \vfill\item Fortran's basic type is a fixed-length string
+    \vfill\item Character constants are quoted strings
+    \begin{itemize}
+      \item \texttt{print *, 'This is a title'}
+      \item \texttt{print *, ``And so is this''}
+    \end{itemize}
+    \vfill\item The characters between quotes are the value
+  \end{itemize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Character Variables}
+\texttt{character :: answer, marital\_status} \\
+\texttt{character(len=10) :: name,dept,faculty} \\
+\texttt{character(len=32) :: address} \\
+\vfill
+\texttt{answer} and \texttt{marital\_status} are each of length \textbf{1}. \\
+They hold precisely one character each such are 'Y' or 'n'. \\
+\vfill
+\texttt{name}, \texttt{dept} and \texttt{faculty} are of length \textbf{10}. \\
+\texttt{address} is of length \textbf{32}. \\
+\vfill
+{\color{red}If you do not use the full 'len' the rest is whitespace!}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Character Concatenation}
+  
+  Strings may be joined using the \texttt{//} operator \\
+\vfill
+  \texttt{character(len=6) :: identity,a,b,z \\
+    identity = 'TH' // 'OMAS' \\
+    a = 'TH' \\
+    b = 'OMAS' \\
+    z = a // b \\
+    print *,identity \\
+    print *,z \\
+  }
+\vfill
+What is the result?
+\vfill
+// does not remove trailing spaces!
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Character Intrinsics}
+\texttt{len(c) -- the storage length of c\\
+  trim(c) -- remove trailing blanks\\
+  adjustl(c) -- remove leading blanks\\
+  index(str,sub) -- position of a substring in string
+  repeat(str,num) -- copy a str num times and join
+}
+\vfill Again there are many intrinsics to search internet!
+\vfill
+\texttt{z = trim(a)//trim(b)} \\
+\texttt{print *,z} \\
+\vfill
+This will give us THOMAS!
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Parameters or Constants}
+  \begin{itemize}
+    \item \texttt{parameter} is an optional attribute for a variable
+    \vfill\item parameters cannot be changed during the execution of the code
+    \vfill\item the actual values of the parameters are specific and substituted in a compile time
+    \vfill\item this can reduce errors for variables that should not change
+  \end{itemize}
+\vfill
+\texttt{real(8), parameter :: pi = 3.14159\_8 (or 3.14159D0) \\
+	integer, parameter :: maxlen = 100}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}
+\begin{center}
+\Huge{Example 2}
+\end{center}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{End of Class/External Assignment}
+\center\Large\textbf{Law of Cosines}
+\normalsize
+\begin{itemize}
+  \vfill\item Declare all variables
+  \vfill\item Get user input for 2 sides and an angle between (read in degrees)
+  \vfill\item Also from user get name of the third side (The length (sidename) is)
+  \vfill\item Do out the math (be careful!)
+  \vfill\item Print results to user
+\end{itemize}
+\end{frame}
+%------------------------------------------------------------------------------
+\end{document}
