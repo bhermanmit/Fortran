@@ -1,0 +1,297 @@
+%%%%%%%%%%%%   LaTeX Preamble %%%%%%%%%%%%%%
+
+\documentclass{beamer}
+
+% list all packages
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{latexsym}
+\usepackage{color}
+\usepackage{mycommands}
+\usepackage{listings}
+\lstset{language=Fortran,
+        keywordstyle=\color{blue}\textbf,
+	commentstyle=\color[rgb]{0.133,0.545,0.133},
+	stringstyle=\color[rgb]{0.627,0.126,0.941},
+	breaklines=true,
+	showstringspaces=false,
+	frame=trBL
+       }
+
+% slide theme
+\usetheme{Berlin}
+\usecolortheme{mit}
+
+% Set Logo
+\pgfdeclareimage[height=0.5cm]{mit-logo}{../../mit-logo.pdf}
+\logo{\vspace{-0.25cm}\pgfuseimage{mit-logo}\hspace*{0.025cm}}
+
+% Include Custom environments
+% \input{../environments.tex}
+
+% Title Page
+\title[]{Procedures and Conditionals}
+\author[]{22.901 Introduction to Computer Programming for Nuclear Engineers}
+\institute[\insertpagenumber]{}
+\date{January 23, 2012} 
+
+% -----------------------------------------------------------------------------
+\begin{document}
+% -----------------------------------------------------------------------------
+
+% Inset title page
+\frame{\titlepage}
+
+% Outline slide
+\begin{frame}{Outline}
+  \begin{itemize}
+    \item Subroutines
+    \vfill\item Functions
+    \vfill\item Logical Operators
+  \end{itemize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Sub-Dividing the Problem}
+
+  \begin{itemize}
+    \vfill\item Most programs are \alert{thousands} of lines!
+    \vfill\item You may notice you have to have similar code in multiple places
+    \vfill\item Want to have good organization
+  \end{itemize}
+  \begin{center}
+    \vfill{\huge\color{blue} use procedures}
+  \end{center}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{So what can we do?}
+
+  \begin{itemize}
+    \item There must be a single {\color{blue}{main}} program
+    \vfill\item {\color{blue}{Subroutines}} and {\color{blue}{functions}} are called procedures
+    \vfill\item For now we will list them in one file
+  \end{itemize}
+  \vfill
+  Subroutines::
+  \begin{itemize}
+    \item Code that exists somewhere else
+    \item You can pretty much do anything
+  \end{itemize}
+  \vfill
+  Functions::
+  \begin{itemize}
+    \item Purpose is to return a result 
+  \end{itemize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Calling a subroutine}
+  \begin{itemize}
+    \item use the call statement, \texttt{call <sub name>(args...)}
+  \end{itemize}
+  \vfill
+  The subroutine is defined somewhere else:
+  \begin{itemize}
+    \item \texttt{subroutine <name>(args)}
+    \item \texttt{use ...}
+    \item \texttt{implicit none}
+    \item variable declarations
+    \item executable statements
+    \item \texttt{end subroutine <name>}
+  \end{itemize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Dummy Arguments}
+
+  \begin{itemize}
+    \item Variable names in a procedure, only exist in that procedure
+    \vfill\item Fortran is \textbf{pass-by-reference}
+    \vfill\item The memory location are only passed between procedures (copies are not made!)
+    \vfill\item Therefore in arguments list only order matters, not the name!
+    \vfill\item Each argument must match in type and rank
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Functions}
+
+  \begin{itemize}
+    \item Use when the result is a single value
+    \vfill\item For example to return the maximum value of a vector
+    \vfill\item \textbf{Important:} The function name defines the variable in the function
+    \vfill\item The function name is returned at the end of a function
+  \end{itemize}
+  \vfill
+  \texttt{a = maxval(vec)}
+  \vfill
+  \texttt{function maxval(v,n)}
+  \hspace{0.1cm} \texttt{integer :: n ! length of vector} \\
+  \hspace{0.1cm} \texttt{real :: maxval ! the maximum value of a vector} \\
+  \hspace{0.1cm} \texttt{real :: vec(n) ! the vector} \\
+  \hspace{0.1cm} \texttt{...} \\
+  \texttt{end function maxval}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{The Intent Attribute}
+
+  \begin{itemize}
+    \item You can make arguments read-only, write-only or read-write(default)
+    \vfill\item This should be used to avoid overwriting a variable
+    \vfill\item It is an attribute so it is listed before the ::
+    \vfill\item Example::
+      \begin{itemize}
+	\item \texttt{integer, intent(in) :: avar ! read-only}
+	\item \texttt{integer, intent(out) :: avar ! write-only}
+	\item \texttt{integer, intent(inout) :: avar ! read-write}
+	\item \texttt{integer :: avar ! read-write}
+      \end{itemize}
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Internal Procedures}
+  
+  \begin{itemize}
+    \item use the \texttt{contains} command
+    \vfill\item this will be use a lot more for modules and object-oriented programming
+    \vfill\item included procedure are internal and are private to other routines
+    \vfill\item they may not contain their own internal subprograms
+  \end{itemize}
+  \vfill
+  \texttt{program test} \\
+  \texttt{...} \\
+  \texttt{contains} \\
+  \texttt{subroutine atest} \\
+  \texttt{...} \\
+  \texttt{end subroutine atest} \\
+  \texttt{end program test}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}[allowframebreaks]{Calculating zeta}
+  \begin{scriptsize}
+    \lstinputlisting{../examples/zeta.f90}
+  \end{scriptsize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Decision Making - Conditionals}
+
+  \begin{itemize}
+    \item Almost every time we code, decisions need to be made from with in the code
+    \vfill\item Conditionals allow us to execute certain parts of code
+    \vfill\item We will go over the following constructs:
+    \begin{itemize}
+      \item \texttt{if} statement
+      \item \texttt{if-then} statement
+      \item \texttt{if-else} statement
+      \item \texttt{if-elseif-else} statement
+    \end{itemize}
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{The 'if' statement}
+  
+  \begin{itemize}
+    \item Oldest and simplest control statement
+    \vfill\item \texttt{if (logical expression) <execute statement>}
+    \vfill\item If the LHS is \texttt{.true.}, the RHS is executed
+    \vfill\item This is only useful if there is a simple decision and one execute statment
+    \vfill\item For anything more complicated, we need to go to block statements
+  \end{itemize}
+  \vfill
+  \begin{center}
+    \texttt{if (x < a) x = a}
+  \end{center}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{The 'if-then' block statement}
+
+  \begin{itemize}
+    \item A block if-then statement is more flexible than the if statment
+    \vfill\item It has the following form:\\
+    \vfill\texttt{if (logical expression) then \\
+	\hspace{0.5cm}execute statements  \\
+	\hspace{0.5cm}more execute statements  \\
+	end if \\}
+    \item If the logical expression is \texttt{.true.} then the block is executed
+  \end{itemize}
+  \vfill
+  \texttt{if (coremap(i,j,k) == 99999) then \\
+    \hspace{0.5cm} beta = eval\_albedo(i,j,k) \\
+    \hspace{0.5cm} D = beta(2)/beta(1) \\
+    \hspace{0.5cm} Dhat = D/dx*(flux(i,j,k)) \\
+    end if
+    }
+  
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{The 'if-else' block statement}
+
+  \begin{itemize}
+    \item A block if-then statement is more flexible than the if statment
+    \vfill\item It has the following form:\\
+    \vfill\texttt{if (logical expression) then \\
+	\hspace{0.5cm}execute statements  \\
+	else \\
+	\hspace{0.5cm}execute statements  \\
+	end if \\}
+    \item If the logical expression is \texttt{.true.} then the first block is executed. Otherwise, the second block is omitted
+  \end{itemize}
+  \vfill
+  \texttt{if (coremap(i,j,k) == 99999) then \\
+      \hspace{0.5cm} beta = eval\_albedo(i,j,k) \\
+    else \\
+      \hspace{0.5cm} beta = 1.0 \\
+    end if
+    }
+  
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Including the 'else if'}
+  \begin{itemize}
+    \item You can use as many \texttt{else if} statements as you want
+    \vfill\item There is only 1 \texttt{end if} per \texttt{if} (none for else if)
+    \vfill\item All {else if} statements must be listed before the \texttt{else}
+    \vfill\item They are checked in order until the first \texttt{.true.} is evaluated
+    \vfill\item You don't have to have the \texttt{else} statement
+  \end{itemize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Logical Operators}
+     Order of logical operation is used
+  \begin{itemize}
+    \vfill\item \texttt{()} - inside out, and function references
+    \vfill\item \texttt{.not.} - left to right
+    \vfill\item \texttt{.and.} - left to right
+    \vfill\item \texttt{.or.} - left to right
+    \vfill\item \texttt{==,/=,>,<,>=,<=} - left to right
+  \end{itemize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}[allowframebreaks]{Square root}
+  \begin{scriptsize}
+    \lstinputlisting{../examples/squareroot.f90}
+  \end{scriptsize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{End of class/External Assignment}
+
+  \begin{itemize}
+    \item Write a program that solves the quadratic equation
+    \begin{equation}
+      \nonumber
+       y = ax^{2} + bx + c 
+    \end{equation}
+    \vfill\item Have the user enter coefficients \emph{a}, \emph{b} and \emph{c}
+    \vfill\item Depending on the sign of the discriminant you will have 3 rules:
+    \begin{itemize}
+      \vfill\item Imaginary, Real, or Double real root
+    \end{itemize}
+    \vfill\item Calculate appropriate number of solutions
+    \vfill\item Print result to user
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\end{document}
