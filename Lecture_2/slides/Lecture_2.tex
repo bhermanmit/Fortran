@@ -8,6 +8,15 @@
 \usepackage{latexsym}
 \usepackage{color}
 \usepackage{mycommands}
+\usepackage{listings}
+\lstset{language=Fortran,
+        keywordstyle=\color{blue}\textbf,
+	commentstyle=\color[rgb]{0.133,0.545,0.133},
+	stringstyle=\color[rgb]{0.627,0.126,0.941},
+	breaklines=true,
+	showstringspaces=false,
+	frame=trBL
+       }
 
 % slide theme
 \usetheme{Berlin}
@@ -123,10 +132,10 @@ Integers::
 
 \end{frame}
 %------------------------------------------------------------------------------
-\begin{frame}
-\begin{center}
-\Huge{Example 1}
-\end{center}
+\begin{frame}[allowframebreaks]{Homework 1 w/ Declarations}
+\begin{scriptsize}
+  \lstinputlisting{../examples/assign1.f90}
+\end{scriptsize}
 \end{frame}
 %------------------------------------------------------------------------------
 \begin{frame}{Fortran Intrinsic Functions}
@@ -217,10 +226,10 @@ This will give us THOMAS!
 	integer, parameter :: maxlen = 100}
 \end{frame}
 %------------------------------------------------------------------------------
-\begin{frame}
-\begin{center}
-\Huge{Example 2}
-\end{center}
+\begin{frame}[allowframebreaks]{Calculating the Hypotenuse}
+\begin{scriptsize}
+  \lstinputlisting{../examples/pythag.f90}
+\end{scriptsize}
 \end{frame}
 %------------------------------------------------------------------------------
 \begin{frame}{End of Class/External Assignment}
