@@ -1,0 +1,374 @@
+%%%%%%%%%%%%   LaTeX Preamble %%%%%%%%%%%%%%
+
+\documentclass{beamer}
+
+% list all packages
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{latexsym}
+\usepackage{color}
+\usepackage{mycommands}
+\usepackage{listings}
+\lstset{language=Fortran,
+        keywordstyle=\color{blue}\textbf,
+	commentstyle=\color[rgb]{0.133,0.545,0.133},
+	stringstyle=\color[rgb]{0.627,0.126,0.941},
+	breaklines=true,
+	showstringspaces=false,
+	frame=trBL
+       }
+
+% slide theme
+\usetheme{Berlin}
+\usecolortheme{mit}
+
+% Set Logo
+\pgfdeclareimage[height=0.5cm]{mit-logo}{../../mit-logo.pdf}
+\logo{\vspace{-0.25cm}\pgfuseimage{mit-logo}\hspace*{0.025cm}}
+
+% Include Custom environments
+% \input{../environments.tex}
+
+% Title Page
+\title[]{Loops and Arrays}
+\author[]{22.901 Introduction to Computer Programming for Nuclear Engineers}
+\institute[\insertpagenumber]{}
+\date{January 24, 2012} 
+
+% -----------------------------------------------------------------------------
+\begin{document}
+% -----------------------------------------------------------------------------
+
+% Inset title page
+\frame{\titlepage}
+
+% Outline slide
+\begin{frame}{Outline}
+  \begin{itemize}
+    \item Control Constructs
+    \item Arrays
+  \end{itemize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Named \texttt{IF} Statements}
+
+  \begin{itemize}
+    \item An \texttt{if} statement can be preceded by a name
+    \vfill\item If this is used, the \texttt{end if} must be followed by the same name
+    \vfill\item These are known as labels
+  \end{itemize}
+  \vfill
+  \texttt{xcheck: if (x < 0.0) then} \\
+    \hspace{0.1cm} \texttt{x = a} \\
+  \texttt{else} \\
+    \hspace{0.1cm} \texttt{x = c} \\
+  \texttt{end if xcheck}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Select Case Construct}
+
+  \begin{itemize}
+    \item It is very common that there may be a lot of \texttt{if} statements for one variable
+    \vfill\item Instead of putting a bunch of \texttt{else if} constructs, use \alert{select case} construct
+  \end{itemize}
+  \vfill
+  \scriptsize{
+  \texttt{print *, 'Happy Birthday, what is your age?'} \\
+  \texttt{read *,age} \\
+  \texttt{select case(age)} \\
+  \texttt{case(18)} \\
+    \hspace{0.1cm} \texttt{print *, 'You can now vote'} \\
+  \texttt{case(40)} \\
+    \hspace{0.1cm} \texttt{print *, 'Life begins'} \\
+  \texttt{case(60)} \\
+    \hspace{0.1cm} \texttt{print *, 'Free prescriptions'} \\
+  \texttt{case default} \\
+    \hspace{0.1cm} \texttt{print *, 'It's just another birthday!'} \\
+  \texttt{end select}
+  }
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{The \texttt{DO} Loop}
+
+  \begin{itemize}
+    \item A loop with some iteration counter, has the syntax: \\
+      \vfill
+      \hspace{1.9cm} \texttt{[loop name] do [loop control]} \\
+      \hspace{2.5cm} \texttt{execution statements} \\
+      \hspace{2cm} \texttt{end do [loop name]}
+    \vfill\item \texttt{loop name} and \texttt{loop control} are optional
+    \vfill\item If there is no loop control, it will go indefinitely (not good!)
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Loop Control}
+
+  \begin{itemize}
+    \item Simple Loop Control: \texttt{<ivar> = <LB>,<UB>}
+    \vfill\item \texttt{<ivar>} \alert{must} be an integer variable
+    \vfill\item \texttt{<LB>} and \texttt{<UB>} are the lower and upper bounds respectively
+    \vfill\item \alert{Note}: The bounds can hold any integer expression
+  \end{itemize}
+  \vfill
+  {\color{blue}{The flow of a loop::}} \\
+  The variable starts at the lower bound \\
+  If it exceeds the upper bound, the loop exits \\
+  The loop body is executed \\
+  The variable is incremented by \alert{ONE} \\
+  The loop starts again
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Specifying an Increment}
+
+  \begin{itemize}
+    \item The default increment step is +1 (will not decrement)
+    \vfill\item To specify an increment: \texttt{<ivar> = <lb>,<ub>,<step>}
+    \vfill\item Therefore, to perform a decreasing loop counter:
+  \end{itemize}
+  \vfill
+  \texttt{history: do i = 20,1,-2} \\
+    \hspace{0.1cm} \texttt{execution statements} \\
+  \texttt{end do history}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Rules of \texttt{DO} Loops}
+
+  \begin{itemize}
+    \item Can't change bounds of loop once inside the loop
+    \vfill\item \alert{Never} change the value of the loop variable
+    \vfill\item Feel free to use the loop variables value anywhere \alert{inside} the loop
+    \vfill\item Loop variable is not defined outside the context of a loop
+    \vfill\item Do not use \texttt{GO TO} to exit a loop use \texttt{EXIT}
+  \end{itemize}
+  \vfill
+  \texttt{exit} will break out of the nearest loop \\
+  \texttt{cycle} will go increment the counter and go back to the top\\
+  {\color{red}\begin{center}{Don't confuse \texttt{cycle} with \texttt{continue}}\end{center}}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{While Loops}
+
+  \begin{itemize}
+
+    \item Useful when the a logical expression determines when the loop ends
+    \vfill\item Has the syntax: \\
+    \vfill
+    \hspace{2cm}  \texttt{while (<logical expression>)} \\
+      \hspace{2.5cm} \texttt{execution statements} \\
+    \hspace{2cm} \texttt{end while}
+    \vfill\item Loop will execute until \texttt{<logical expression>} is \texttt{.false.}
+    \vfill\item I generally do not use these because they could go forever
+    \vfill\item If a logical expression should terminate a loop I specify a do loop with a finite number of iterations
+    \vfill\item I then use a conditional statement to \texttt{exit} the loop early
+
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}[allowframebreaks]{Nonlinear Bisection Algorithm}
+\begin{scriptsize}
+  \lstinputlisting{../examples/bisect/nonlinear.f90}
+  \lstinputlisting{../examples/bisect/myfun.f90}
+  \lstinputlisting{../examples/bisect/bisect.f90}
+\end{scriptsize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Declaring an Array - Terminology}
+
+\texttt{real, dimension(10) :: a} \\
+\texttt{real :: a(10),b(0:9,5,6:10)}\\
+
+  \begin{itemize}
+
+    \vfill
+    \item The \emph{rank} is the number of dimensions
+    \item \texttt{a} has rank 1 and \texttt{b} has rank 3
+    \vfill
+    \item The \emph{bounds} are the upper in lower limits
+    \item If the range is not specified default is 1:dim
+    \item \texttt{a} has bounds 1:10 and \texttt{b} has bounds 0:9,1:5,6:10
+    \vfill
+    \item A dimension's \emph{extent} is $UB-LB+1$
+    \item \texttt{a} has extent 10 and \texttt{b} has extents 10,5,5
+
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Array Element Assignments}
+
+  \begin{itemize}
+    \item An array index can be any integer expression
+    \vfill\item In order to declare size with a variable here, must use parameter
+    \vfill\item Later in this lecture we will talk about \emph{allocation}
+  \end{itemize}
+  \vfill
+  \texttt{integer,parameter :: n=50} \\
+  \texttt{integer,dimension(-50:50) :: mark} \\
+  \texttt{integer :: i}
+  \texttt{do i = -n,n} \\
+    \hspace{0.1cm} \texttt{mark(i) = 2*i} \\
+  \texttt{end do}
+  \vfill
+  Sets mark to -100,-98,...,90,100
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Array Element-wise Operations}
+
+  \begin{itemize}
+    \item Most built-in operators/functions are elemental
+    \vfill\item They act element-by-element on arrays \\
+
+    \vfill
+    \hspace{1cm} \texttt{real,dimension(1:200) :: arr1,arr2,arr3} \\
+    \hspace{1cm} \texttt{execution statements} \\
+    \hspace{1cm} \texttt{arr1 = arr2 + 1.23*exp(arr3/4.56)} \\
+
+    \vfill\item Comparisons and logical operations are also element-wise \\
+    \vfill
+    \hspace{1cm} \texttt{real,dimension(1:200) :: arr1,arr2,arr3} \\
+    \hspace{1cm} \texttt{logical,dimension(1:200) :: flags} \\
+    \hspace{1cm} \texttt{execution statements} \\
+    \hspace{1cm} \texttt{flags = (arr1 > exp(arr2) .or. arr3 < 0.0)}
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Array Intrinsic functions}
+
+  \begin{itemize}
+    \item There are a lot of useful instrinsic procedures for arrays:
+    \begin{itemize}
+      \item \texttt{size(x[,n])} - the size of the nth dimension of an array
+      \item \texttt{lbound(x[,n])} - the lower bound of the nth dimension of x
+      \item \texttt{ubound(x[,n])} - the upper bound of the nth dimension of x
+      \item \texttt{minval(x)} - the minimum of all elements of x
+      \item \texttt{maxval(x)} - the maximum of all elements of x
+      \item \texttt{sum(x[,n])} - the sum of all elements of x
+      \item \texttt{product(x[,n])} - the product of all elements of x
+      \item \texttt{transpose(x)} - the transpose of a matrix
+      \item \texttt{dot\_product(x,y)} - the dot product of x and y
+      \item \texttt{matmul(x,y)} - 1- and 2-D matrix multiplication
+    \end{itemize}
+    \item If you don't specify \texttt{n} and there is more than 1 dimension either, the operation is performed for all dimensions to give a scalar, or over each dimension resulting in a vector
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Element Ordering in Memory}
+
+  \begin{itemize}
+    \item The traditional term is ``column-major order''
+    \vfill\item However, memory is only linear
+    \vfill\item The easy way to remember is \alert{first index varies the fastest}
+    \vfill\item Also means, the first index should be the inner-most nested loop (faster code!!)
+    \vfill\item The elements are in the following order: 
+  \end{itemize}
+A(1,1),A(2,1),A(3,1),A(1,2),A(2,2),A(3,2),A(1,3),A(2,3),A(3,3)
+
+{\begin{center}\color{red} Note: C, Matlab, etc. are the opposite\end{center}} 
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Simple I/O of Arrays}
+
+  \begin{itemize}
+    \item Arrays can be included in I/O
+    \vfill\item Remember \emph{column-major order}
+  \end{itemize}
+  \vfill
+  \texttt{real, dimension(3,2) :: oxo} \\
+  \texttt{read *,oxo} \\
+  \begin{itemize}
+    \vfill\item This is exactly equivalent to: 
+  \end{itemize}
+  \vfill
+  \texttt{real :: oxo(3,2)} \\
+  \texttt{read *, oxo(1,1), oxo(2,1), oxo(3,1), oxo(1,2), oxo(2,2), oxo(3,2)}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Array Constructors}
+
+  \begin{itemize}
+    \item An array constructor creates a temporary array and copies it to a variable \\
+    \hspace{1cm} \texttt{integer :: marks(1:6)} \\
+    \hspace{1cm} \texttt{marks = (/10,25,32,50,54,60/)}
+
+    \vfill\item Can use variable expressions:
+    \hspace{1cm} \texttt{(/x,2.0*y,sin(t*w/3.0),etc./)}
+
+    \vfill\item A list can be set using an \alert{Implied-DO Loop}:
+    \item Let $n=9$:
+    \hspace{1cm} \texttt{(/0.0,(k/10.0,k=1,n),1.0/)}
+    \item This lists 0.0 - 1.0 in increments of 0.1
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Allocatable Arrays}
+
+  \begin{itemize}
+    \item So far when we have created arrays, we have used \alert{static allocation}
+    \vfill\item Allocatable arrays use \alert{dynamic allocation}
+    \vfill\item A new attribute, \texttt{allocatable}, is used to declare an array with \emph{unknown} shape but \emph{known} rank! \\
+      \hspace{0.1cm} \texttt{integer, dimension(:), allocatable :: counts} \\
+      \hspace{0.1cm} \texttt{real, dimension(:,:,:), allocatable :: values}
+    \vfill\item They become defined when the space is allocated: \\
+      \hspace{0.1cm} \texttt{allocate(counts(1:1000))} \\
+      \hspace{0.1cm} \texttt{allocate(value(0:N,-5:5,M:2*N+1))}
+    \vfill\item When finished using, \alert{must} deallocate: \\
+      \hspace{0.1cm} \texttt{deallocate(counts)} \\
+      \hspace{0.1cm} \texttt{deallocate(values)}
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Cholesky Decomposition}
+
+To solve $\mathbb{A} = \mathbb{L}\mathbb{L}^{T}$ , A must be symmetrix and positive definite: \\
+\vfill
+\begin{equation}
+ \nonumber
+  L_{jj} = \sqrt{A_{jj} - \sum_{k=1}^{j-1}{L_{jk}^{2}}}
+\end{equation}
+\vfill
+\begin{equation}
+ \nonumber
+  \forall_{i>j}, L_{ij} = \left ( A_{ij} - \sum_{k=1}^{j-1} L_{ik}L_{jk} \right)/L_{jj}
+\end{equation}
+
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}[allowframebreaks]{Cholesky Algorithm}
+\begin{scriptsize}
+  \lstinputlisting{../examples/cholesky.f90}
+\end{scriptsize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{End of Class/External Assignment}
+
+To solve $\mathbb{C} = \mathbb{A}*\mathbb{B}$
+\vfill
+\begin{equation}
+ \nonumber
+  c_{ij} = \sum_{k=1}^{m} a_{ik}*b{kj}
+\end{equation}
+\vfill
+A has dimensions n,m \\
+B has dimensions p,q \\
+
+Have user enter these and make sure you allocate \\
+Check that m = p, if not terminate the code with a message \\
+Call subroutine for matrixmultiplication \\
+In subroutine, you will need a two do loops that are nested (one for column and one for row) \\
+You will need intrinsic function sum \\
+Fun this in standalone and use it in cholesky decomposition instead of \texttt{matmul} \\
+
+\end{frame}
+%------------------------------------------------------------------------------
+\end{document}
