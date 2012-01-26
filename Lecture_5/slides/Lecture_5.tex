@@ -1,0 +1,342 @@
+%%%%%%%%%%%%   LaTeX Preamble %%%%%%%%%%%%%%
+
+\documentclass{beamer}
+
+% list all packages
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{latexsym}
+\usepackage{color}
+\usepackage{mycommands}
+\usepackage{listings}
+\lstset{language=Fortran,
+        keywordstyle=\color{blue}\textbf,
+	commentstyle=\color[rgb]{0.133,0.545,0.133},
+	stringstyle=\color[rgb]{0.627,0.126,0.941},
+	breaklines=true,
+	showstringspaces=false,
+	frame=trBL
+       }
+
+% slide theme
+\usetheme{Berlin}
+\usecolortheme{mit}
+
+% Set Logo
+\pgfdeclareimage[height=0.5cm]{mit-logo}{../../mit-logo.pdf}
+\logo{\vspace{-0.25cm}\pgfuseimage{mit-logo}\hspace*{0.025cm}}
+
+% Include Custom environments
+% \input{../environments.tex}
+
+% Title Page
+\title[]{Formatted I/O, Derived Types and Makefiles}
+\author[]{22.901 Introduction to Computer Programming for Nuclear Engineers}
+\institute[\insertpagenumber]{}
+\date{January 26, 2012} 
+
+% -----------------------------------------------------------------------------
+\begin{document}
+% -----------------------------------------------------------------------------
+
+% Inset title page
+\frame{\titlepage}
+
+% Outline slide
+\begin{frame}{Outline}
+  \begin{itemize}
+    \item Formatted I/O
+    \vfill\item Derived Types
+    \vfill\item Makefiles
+  \end{itemize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{What Have we Done so Far?}
+
+  \begin{itemize}
+   \item \texttt{print *,} - used for printing to screen
+   \item \texttt{read *,} - used for reading from screen
+  \end{itemize}
+  \vfill
+  These are historical, in modern Fortran we use:
+  \begin{itemize}
+    \item \texttt{write(*,*)<stuff>} - write to screen
+    \item \texttt{read(*,*)<stuff>} - read from screen
+  \end{itemize}
+  \vfill
+  Really, this is shorthand notation for: \\
+  \begin{center}
+    \texttt{write(unit=*,fmt=*)}
+  \end{center}
+  \vfill
+  \begin{itemize}
+    \item \texttt{unit=*} stdin(unit=6) or stdout=(unit=5)
+    \item \texttt{fmt=*} list directed input/output
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Using Units}
+
+  \begin{itemize}
+    \item A unit is an integer identifying a connection to a file
+    \vfill\item Generally use values bewteen 10 and 99
+    \vfill\item \texttt{unit=} can be omitted if the unit is first in the write list
+  \end{itemize}
+  \vfill
+  \begin{center}
+    \texttt{write(10,*) 'Hello'}
+  \end{center}
+  \begin{itemize}
+    \vfill\item This will write the string Hello to unit 10
+    \vfill\item By default, unit 10 directs to the file 'fort.10'
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Specifying a Format}
+
+  \begin{itemize}
+    \item \texttt{fmt=} can be omitted if the format is second and the first is unit
+    \vfill\item \texttt{fmt=*} indicates list directed I/O
+    \vfill\item \texttt{fmt=<fmt>} indicates a fixed format
+    \vfill\item If \texttt{<fmt>} is a number, a format card is needed
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Implied DO Loops}
+
+  \begin{itemize}
+    \item There is an alternative to array expressions
+    \vfill\item Often more convinient
+    \vfill\item The format: \texttt{ (<list>,<indexed loop control>) }
+  \end{itemize}
+  \vfill
+  For example:
+  \begin{center}
+    \texttt{((A(i,j),j=1,3),B(i),i=6,2,-2)} \\
+  \end{center}
+  \vfill
+  This prints: \\
+  \texttt{A(6,1),A(6,2),A(6,3),B(6),A(4,1),A(4,2),A(4,3),B(4),...}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Integer Descriptor}
+
+  \begin{itemize}
+    \item \texttt{In} displays an integer
+    \vfill\item Integers are printed \textbf{right-justified}
+    \vfill\item \texttt{In.m} displays at least \texttt{m} digits
+    \vfill\item A '-' sign will take up one spot in the field
+  \end{itemize}
+  \vfill
+  For example:
+  \begin{center}
+    \texttt{write(*,'(I7)') 123} will give  '\texttt{\^}\texttt{\^}\texttt{\^}\texttt{\^}123' \\
+    \texttt{write(*,'(I7,5)') 123} will give '\texttt{\^}\texttt{\^}00123'
+  \end{center}
+  \vfill
+  \alert{Note:} The character \texttt{\^} does not actually appear, it is just used to denote a space in this presentation.
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Fixed-Formal Real}
+
+  \begin{itemize}
+    \item \texttt{Fn.m} displays to \texttt{m} decimal places
+    \vfill\item Printed \textbf{right-justified} in a field of width \texttt{n}
+    \vfill\item A '-' and the decimal '\texttt{.}' take up one spot in the filed
+    \vfill\item Numbers should be correctly rounded
+  \end{itemize}
+  \vfill
+  For example:
+  \begin{center}
+    \texttt{write(*,'(F9.3)') 1.23} will give '\texttt{\^}\texttt{\^}\texttt{\^}\texttt{\^}1.230'
+    \texttt{write(*,'(F9.5)') 0.123e-4} will give '\texttt{\^}\texttt{\^}0.00001'
+  \end{center}
+  \vfill
+  \alert{Note:} The character \texttt{\^} does not actually appear, it is just used to denote a space in this presentation.
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Field Overflow and Zero Widths}
+
+  \begin{itemize}
+    \item A field overflow happens when you try to fit a value in a field that is too small
+    \vfill\item the whole field is then replaced by asterisks
+    \vfill\item putting 12345 into I4 gives ****
+    \vfill\item for integer and fixed-format reals using a width of 0 will get rid of leading spaces
+  \end{itemize}
+  \vfill
+  For example: \\
+    \texttt{write(*,'(I7)') 123} will give  '\texttt{\^}\texttt{\^}\texttt{\^}\texttt{\^}123' \\
+    \texttt{write(*,'(I0)') 123} will give  '123' \\
+    \texttt{write(*,'(``/'',I0,``/'',F0.3)')} 12345,987.654321 will give '/12345/987.654'
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Exponential Format}
+
+  \begin{itemize}
+    \item Use the \texttt{ESn.m} for \texttt{m} decimal places
+    \vfill\item \texttt{n} is the total field with including '-' and '.' and exponential part (usually 4 spots)
+    \vfill\item General Rule: $n \ge m+7$
+  \end{itemize}
+  \vfill
+  For example: \\
+  \vfill
+  \texttt{write(*,'(ES12.5)') 233323.2324234} will give 2.33323E+05
+  \vfill
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Character Descriptor}
+
+  \begin{itemize}
+    \item \texttt{An} displays a field width of \texttt{n}
+    \vfill\item \texttt{A} uses the exact width of the output item
+    \vfill\item If the output field is too small, the left most characters are used
+    \vfill\item If the output field is too large, \textbf{right-justified}
+  \end{itemize}
+  \vfill
+  For example: \\
+  \texttt{write(*,'(A3)') 'abcdefgh'} will give \texttt{abc}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Other Descriptors}
+
+  \begin{itemize}
+    \item \texttt{Ln} displays either T or F
+    \vfill\item \texttt{Gn} or \texttt{Gn.m} is a generalized descriptor
+    \vfill\item You can do string contants by surrouding in quotes
+    \vfill\item Spacing descriptor - \texttt{nX}. 4X puts 4 spaces
+    \vfill\item Newline descriptor - just do a single /
+    \vfill\item Tab descriptor - \texttt{Tn} where \texttt{n} is the column number to tab to 
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Opening a file}
+
+  \begin{itemize}
+    \item Use the \text{open} command
+    \vfill
+    \begin{center}
+      \texttt{open(unit=11,file='fred')}
+    \end{center}
+    \vfill\item Use unit 11 now in all write or read statements
+    \vfill\item Use numbers 10-99
+    \vfill\item To close a file use close(unit\#)
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}[allowframebreaks]{Matrix Multiply}
+\begin{scriptsize}
+  \lstinputlisting{../examples/matmultiply.f90}
+\end{scriptsize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{What is a derived type}
+
+  \begin{itemize}
+    \item Basically is it a grouping of variables
+    \vfill\item This is sometimes referred to as a structure
+    \vfill\item These are very useful in organizing data
+    \vfill\item Think of the underlying data as attributes
+  \end{itemize}
+  \vfill
+  For example: \\
+  \texttt{type :: particle} \\
+    \hspace{0.1cm} \texttt{real :: xcoord ! particle location} \\
+    \hspace{0.1cm} \texttt{real :: energy ! particle energy} \\
+    \hspace{0.1cm} \texttt{real :: angle  ! particle angle} \\
+    \hspace{0.1cm} \texttt{real :: weight ! statistical weight} \\
+    \hspace{0.1cm} \texttt{logical :: alive ! particle alive?} \\
+  \texttt{end type particle}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Component Selection}
+
+  \begin{itemize}
+    \item The selector '\%' is used for this
+    \vfill\item It is then followed by a component of the derived type
+  \end{itemize}
+  \vfill
+  For example: \\
+  \texttt{type(particle) :: neutron} \\
+  \texttt{neutron\%energy = 1.e6} \\
+  \texttt{neutron\%xcoord = start\_neutron()}
+  \vfill
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Array of Types}
+
+  \begin{itemize}
+    \item You can have an array of types
+  \end{itemize}
+  \vfill
+  For example:
+  \texttt{type :: tally} \\
+    \hspace{0.1cm} \texttt{real :: s1} \\
+    \hspace{0.1cm} \texttt{real :: s2} \\
+    \hspace{0.1cm} \texttt{real :: mean} \\
+    \hspace{0.1cm} \texttt{real :: var} \\
+  \texttt{end type tally} \\
+  \texttt{type(tally), allocatable :: tallies(:)} \\
+  \texttt{allocate(tallies(n\_slabs))} \\
+  \texttt{tallies(1)\%mean = 0.0}
+  \vfill
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Assignment}
+
+  \begin{itemize}
+    \item You can assign complete derived types
+    \vfill\item Or simply just components of types
+    \vfill\item \alert{Note:} They have to be of the \textbf{same} type
+  \end{itemize}
+  \vfill
+  \texttt{type(bike) :: mine, yours} \\
+  \texttt{yours = mine} \\
+  \texttt{mine\%front = yours\%back}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Makefiles}
+
+  \begin{itemize}
+    \item You need to set up rules to compile the modules
+    \vfill\item You need to add dependencies to ensure they are rebuilt
+  \end{itemize}
+  \vfill
+  Here is a rule to compile objects: \\
+  \texttt{program: <objects>} \\
+  \texttt{<tab> \$(FC) \$(FFLAGS) \$(LDFLAGS) -o \$\@ \$\^}
+  \begin{itemize}
+    \vfill\item \$(var) just represents a variable that was set already in the makefile
+    \vfill\item \texttt{<objects>} is a list of objects in order of dependencies
+  \end{itemize}
+  \begin{center}
+    \alert{Please search online for more advanced features}
+  \end{center}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{End of Class Assignment}
+
+  \begin{itemize}
+    \item Solve for pi via Monte Carlo
+    \vfill\item Read in number of particles to simulate
+    \vfill\item Set 1cm bounds for 1/4 dartboard
+    \vfill\item Randomly throw a dart with \texttt{rand} intrinsic function
+    \vfill\item Record how many darts are within quarter circle
+    \vfill\item Set up ratio between 1/4 circle and square areas and darts
+    \vfill\item Solve for the mean of pi and report that and variance
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\end{document}
