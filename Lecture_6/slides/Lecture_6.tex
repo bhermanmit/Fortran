@@ -1,0 +1,180 @@
+%%%%%%%%%%%%   LaTeX Preamble %%%%%%%%%%%%%%
+
+\documentclass{beamer}
+
+% list all packages
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{latexsym}
+\usepackage{color}
+\usepackage{mycommands}
+\usepackage{listings}
+\lstset{language=Fortran,
+        keywordstyle=\color{blue}\textbf,
+	commentstyle=\color[rgb]{0.133,0.545,0.133},
+	stringstyle=\color[rgb]{0.627,0.126,0.941},
+	breaklines=true,
+	showstringspaces=false,
+	frame=trBL
+       }
+
+% slide theme
+\usetheme{Berlin}
+\usecolortheme{mit}
+
+% Set Logo
+\pgfdeclareimage[height=0.5cm]{mit-logo}{../../mit-logo.pdf}
+\logo{\vspace{-0.25cm}\pgfuseimage{mit-logo}\hspace*{0.025cm}}
+
+% Include Custom environments
+% \input{../environments.tex}
+
+% Title Page
+\title[]{Modules}
+\author[]{22.901 Introduction to Computer Programming for Nuclear Engineers}
+\institute[\insertpagenumber]{}
+\date{January 30, 2012} 
+
+% -----------------------------------------------------------------------------
+\begin{document}
+% -----------------------------------------------------------------------------
+
+% Inset title page
+\frame{\titlepage}
+
+% Outline slide
+\begin{frame}{Outline}
+  \begin{itemize}
+    \item Modules
+  \end{itemize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{What are Modules for?}
+
+  \begin{itemize}
+    \item Modules fulfill multiple purposes
+    \vfill\item Used for shared declarations (similar to headers)
+    \vfill\item Used for defining global data
+    \vfill\item Used for defining procedure interfaces
+    \vfill\item Think of them as a high-level interface in your code
+    \vfill
+And more...
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Structure of a Module}
+
+\texttt{module <name>} \\
+  \hspace{0.1cm} \texttt{use definitions} \\
+  \hspace{0.1cm} \texttt{implicit none} \\
+  \hspace{0.1cm} \texttt{static data definitions, global to the module} \\
+\texttt{contains} \\
+  \hspace{0.1cm} \texttt{procedure definitions and interfaces} \\
+\texttt{end module <name>}
+  \vfill
+  \begin{itemize}
+    \item Keep 1 module to 1 file 
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{How do modules interact?}
+
+  \begin{itemize}
+    \item Modules can \textbf{use} other modules
+    \vfill\item Modules may not depend on themselves
+    \vfill\item Two modules cannot depend on each other (circular dependency)
+    \vfill\item Anything else will most likely work
+  \end{itemize}
+  \vfill
+  \scriptsize
+  For example: \\
+  \texttt{module bicycle} \\
+    \hspace{0.1cm}\texttt{implicit none}\\
+    \hspace{0.1cm} \texttt{type :: wheel}\\
+      \hspace{0.2cm}\texttt{integer :: spokes}\\
+      \hspace{0.2cm}\texttt{real :: diameter}\\
+      \hspace{0.2cm}\texttt{character(len=15) :: material}\\
+    \hspace{0.1cm}\texttt{end type wheel}\\
+  \texttt{end module bicycle}\\ 
+  \vfill
+  \texttt{program bikeshop}\\
+    \hspace{0.1cm} \texttt{use bicycle}\\
+    \hspace{0.1cm} \texttt{implicit none}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Global Data}
+
+  \begin{itemize}
+    \item  Variables in modules define global data
+    \vfill\item  You need to specify the \textbf{save} attribute
+    \vfill\item  If the whole routine is global data then can just specify one single save at the top under implicit none
+    \vfill\item  Otherwise use a save attribute for each variable explicitly
+    \vfill\item  Thus, if a variable is set in one procedure and used in another the save attribute is a must
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Procedures in Modules}
+
+  \begin{itemize}
+    \item Simplest to include procedures in modules 
+    \item These procedures go after the \textbf{contains}
+    \item Try not to use the same name for local variables in modules and the variables that are listed in the global scope in the file
+    \item There isn't much more to it, just try and organize!
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Data and Procedure Accessibility}
+
+  \begin{itemize}
+    \item It is good practice to limit the scope of data and procedures in modules
+    \item This is a very simple idea
+    \item \textbf{private} names accessible only inside the module
+    \item \textbf{public} names are accessible by the \textbf{use} command
+    \item We will always do the following when creating a module:
+  \end{itemize}
+  \vfill
+  \scriptsize
+  \texttt{module somemodule} \\
+    \hspace{0.1cm} \texttt{any global use commands inside module} \\
+    \hspace{0.1cm} \texttt{implicit none} \\
+    \hspace{0.1cm} \texttt{private} \\
+    \hspace{0.1cm} \texttt{public ::  comma-separate list of public procedures} \\
+    \hspace{0.1cm} \texttt{module global data (use public command as attribute)} \\
+  \texttt{contains} \\
+    \hspace{0.1cm} \texttt{procedures} \\
+  \texttt{end module somemodule}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Partial Inclusion}
+
+  \begin{itemize}
+    \item When you state \textbf{use}, all public data and procedures can be accessed
+    \vfill\item To partially include data or procedures use \textbf{only}
+  \end{itemize}
+  \vfill
+  For example: \\
+  \texttt{use bigmodule, only: errors, invert}
+  \begin{itemize}
+    \vfill\item  Makes only errors and invert visible
+    \vfill\item  This is very good practice
+    \vfill\item  Can easily find which procedures and data are used where (i.e. with grep)
+    \vfill\item  You can only use - only \textbf{public} procedures from another module
+    \vfill\item  This is why partial inclusion and accessiblilty are \\ good ideas
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}[allowframebreaks]{Module Circle}
+\begin{scriptsize}
+  \lstinputlisting{../examples/circle_test.f90}
+  \lstinputlisting{../examples/class_Circle.f90}
+\end{scriptsize}
+\end{frame}
+%------------------------------------------------------------------------------
+\end{document}
