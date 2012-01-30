@@ -1,0 +1,279 @@
+%%%%%%%%%%%%   LaTeX Preamble %%%%%%%%%%%%%%
+
+\documentclass{beamer}
+
+% list all packages
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{latexsym}
+\usepackage{color}
+\usepackage{mycommands}
+\usepackage{listings}
+\lstset{language=Fortran,
+        keywordstyle=\color{blue}\textbf,
+	commentstyle=\color[rgb]{0.133,0.545,0.133},
+	stringstyle=\color[rgb]{0.627,0.126,0.941},
+	breaklines=true,
+	showstringspaces=false,
+	frame=trBL
+       }
+
+% slide theme
+\usetheme{Berlin}
+\usecolortheme{mit}
+
+% Set Logo
+\pgfdeclareimage[height=0.5cm]{mit-logo}{../../mit-logo.pdf}
+\logo{\vspace{-0.25cm}\pgfuseimage{mit-logo}\hspace*{0.025cm}}
+
+% Include Custom environments
+% \input{../environments.tex}
+
+% Title Page
+\title[]{Monte Carlo Project}
+\author[]{22.901 Introduction to Computer Programming for Nuclear Engineers}
+\institute[\insertpagenumber]{}
+\date{January 30 - February 2, 2012} 
+
+% -----------------------------------------------------------------------------
+\begin{document}
+% -----------------------------------------------------------------------------
+
+% Inset title page
+\frame{\titlepage}
+
+% Outline slide
+\begin{frame}{Outline}
+  \begin{itemize}
+    \item 
+  \end{itemize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{What is Monte Carlo?}
+
+  \begin{itemize}
+    \item Is a stochastic method to solve PDEs
+    \vfill\item Useful for simulating random events
+    \vfill\item Probability distributions capture physics
+    \vfill\item Results are reported with a mean and variance
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Neutron Transport Equation}
+  \scriptsize
+  \begin{itemize}
+    \item In its most detailed form (time-independent)
+  \end{itemize}
+  \vfill
+\begin{multline*}
+\overbrace{\underbrace{\hat{\Omega}\cdot\nabla\varphi\left(\vec{r},E,\hat{\Omega}\right)}_{leakage}+\underbrace{\Sigma_{t}\left(\vec{r},E\right)\varphi\left(\vec{r},E,\hat{\Omega}\right)}_{interactions}}^{destruction}=\\
+\underbrace{\int_{0}^{4\pi}d^{2}\Omega^{\prime}\int_{0}^{\infty}dE^{\prime}\Sigma_{s}\left(\vec{r},E^{\prime}\rightarrow E,\hat{\Omega}^{\prime}\rightarrow\hat{\Omega}\right)\phi\left(\vec{r},E^{\prime}\right)}_{scattering\, production}+\\
+\underbrace{\int_{0}^{4\pi}d^{2}\Omega^{\prime}\int_{0}^{\infty}dE^{\prime}\nu\Sigma_{f}\left(\vec{r},E^{\prime}\rightarrow E,\hat{\Omega}^{\prime}\rightarrow\hat{\Omega}\right)\phi\left(\vec{r},E^{\prime}\right)}_{fission\, production}+\underbrace{q\left(\vec{r},E,\hat{\Omega}\right)}_{external\, source}
+\end{multline*}
+  \vfill
+  \begin{itemize}
+    \item Simplified: 1-D homogeneous slab, 1 energy group, isotropic scattering in LAB, no fission, isotropic uniform source
+  \end{itemize}
+  \vfill
+\[
+\mu\frac{\partial\varphi}{\partial x}+\Sigma_{t}\varphi\left(x,\mu\right)=\Sigma_{s}\int_{-1}^{1}d\mu^{\prime}\varphi\left(x,\mu^{\prime}\rightarrow\mu\right)+\frac{Q}{2X} 
+\]
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Neutron Simulation}
+
+  \begin{itemize}
+    \item Monte Carlo neutronic analyses involve simulating neutrons 1-by-1
+    \vfill\item So what happens in the life of a neutron
+    \begin{enumerate}
+      \vfill\item Neutron is born at some location and traveling angle
+      \vfill\item It then transports so location - what can happen?
+      \begin{itemize}
+	\item Cross a surface - go back to 2
+	\item Leak out of system - kill neutron
+	\item Collide with an isotope
+      \end{itemize}
+      \vfill\item If it collides get a collision type
+      \begin{itemize}
+	\item Absorbed - kill neutron
+	\item Scattered - get new angle in LAB
+      \end{itemize}
+      \vfill\item If particle is not dead go back to 2
+    \end{enumerate}
+  \end{itemize}
+  \vfill
+  \begin{center}\alert{That's it!}\end{center}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Source Code Layout}
+
+  \begin{itemize}
+    \item \texttt{main.f90} - The main program file
+    \vfill \item \texttt{execute.f90} - A module where the neutrons life is simulated
+    \vfill \item \texttt{global.f90} - A module that contains all of the global vars
+    \vfill \item \texttt{geometry.f90} - A module that contains geometry information and procedures
+    \vfill \item \texttt{material.f90} - A module that contains material information and procedures
+    \vfill \item \texttt{particle.f90} - A module that contains particle information and procedures
+    \vfill \item \texttt{tally.90} - A module that contains tally information and procedures
+  \end{itemize}
+  \vfill
+  \alert{Make sure you copy OBJECTS, MAKEFILE, DEPENDENCIES and timing.f90 to your local source directory}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Module - \texttt{geometry.f90}}
+
+  \begin{itemize}
+    \item define geometry type with the following attributes
+    \begin{itemize}
+      \item Number of sub-slabs
+      \vfill\item Length of slab
+      \vfill\item Length of sub-slab
+    \end{itemize}
+    \vfill \item Contains one procedure - \texttt{read\_geometry}
+    \begin{itemize}
+      \item pass it a geometry type
+      \vfill\item Read in two out of the 3 attributes
+      \vfill\item calculate the 3rd attribute
+    \end{itemize}
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Module - \texttt{material.f90}}
+
+  \begin{itemize}
+    \item define material type with the following attributes
+    \begin{itemize}
+      \item totalxs - total macroscopic cross section
+      \vfill\item absxs - absorption macroscopic cross section
+      \vfill\item scattxs - scattering macroscopic cross section
+    \end{itemize}
+    \vfill
+    \[ \Sigma_{t} = \Sigma_{a} + \Sigma_{s} \]
+    \vfill \item Contains one procedure - \texttt{read\_material}
+    \begin{itemize}
+      \item pass it a material type
+      \vfill\item Read in each cross section from user
+    \end{itemize}
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Module - \texttt{tally.f90}}
+
+  \begin{itemize}
+    \item define tally type with the following attributes (initialize to 0)
+    \begin{itemize}
+      \item \texttt{c1} - collision accumulator
+      \item \texttt{c2} - square of collision accumulator
+      \item \texttt{s1} - path accumulator
+      \item \texttt{s2} - square of path accumulator
+      \item \texttt{smean} - mean for tracklength est
+      \item \texttt{cmean} - mean for collision est
+      \item \texttt{svar} - variance for tracklength est
+      \item \texttt{cvar} - variance for collision est
+      \item \texttt{track} - temp. track var
+      \item \texttt{coll} - temp. collision var
+    \end{itemize}
+    \vfill \item Contains the following procedures
+    \begin{itemize}
+      \item \texttt{sub: tally\_reset} with argument of a tally\_type
+      \vfill\item \texttt{sub: bank\_tally} with argument of a tally\_type
+      \vfill\item \texttt{sub: perform\_statistics} with arguments of a tally\_type, number of histories, sub-slab width
+    \end{itemize}
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Module - \texttt{particle.f90}}
+
+  \begin{itemize}
+    \item use pdfs (in the static library)
+    \vfill\item define particle type with the following attributes
+    \begin{itemize}
+      \item slab - the slab id number
+      \vfill\item  xloc - the x location of the particle
+      \vfill\item mu - the angle cosine of travel
+      \vfill\item alive - a logical to indicate if the particle is alive
+    \end{itemize}
+    \vfill \item Contains one procedure - \texttt{particle\_init}
+    \begin{itemize}
+      \item pass it a particle\_type and length of slab
+    \end{itemize}
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Module - \texttt{global.f90}}
+
+  \begin{itemize}
+    \item use all of the types listed on previous slides
+    \vfill\item make sure you indicate that you want to save the variables
+    \vfill\item define a geometry (geo), material (mat) and particle (neutron) type
+    \vfill\item define an allocatable, 1-D, tally type called tal (it will be n\_slabs in length)
+    \vfill\item define a variables for number of histories
+    \vfill\item define a timer type see \texttt{timing.f90}
+    \vfill\item this module contains two procedures
+    \begin{itemize}
+      \item sub: allocate\_problem - no args
+      \item sub: free\_memory - no args
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Module - \texttt{global.f90}}
+
+  \begin{itemize}
+    \item eventually will include a bunch of use commands
+    \vfill\item no module-data here
+    \vfill\item contains the following procedures
+    \begin{itemize}
+      \item \texttt{sub: run\_problem} - no args
+      \item \texttt{sub: transport} - no args
+      \item \texttt{sub: interaction} - no args
+      \item \texttt{fun: get\_slab\_id} - no args
+      \item \texttt{sub: reset\_tallies} - no args
+      \item \texttt{sub: bank\_tallies} - no args
+      \item \texttt{sub: print\_tallies - no args}
+    \end{itemize}
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Program - \texttt{main.f90}}
+
+  \begin{itemize}
+    \item Put appropriate \textbf{use} commands - will be obvious from below
+    \vfill\item Read in number of particles to simulate from user
+    \vfill\item Read in geometry - call \texttt{read\_geometry}
+    \vfill\item Read in material - call \texttt{read\_material}
+    \vfill\item begin a timer
+    \vfill\item allocate the problem - call \texttt{allocate\_problem}
+    \vfill\item run the problem - call \texttt{run\_problem}
+    \vfill\item stop the timer
+    \vfill\item print results - call \texttt{printtallies}
+    \vfill\item free memory - call \texttt{free\_memory}
+    \vfill\item terminate the program
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Milestone 1}
+
+  \begin{itemize}
+    \item Develop the file structure for the code
+    \vfill\item Follow description of modules on previous slides
+    \vfill\item Metermine which procedures should be public and which should be private
+    \vfill\item Make sure you do PARTIAL INCLUSION
+    \vfill\item Goal is to read in the data and print it back out in print\_tallies routine
+    \vfill\item Code will go into all subroutines but wont do anything
+    \vfill\item Make sure timer works
+  \end{itemize}
+  \vfill
+  \alert{If you have any trouble getting the code to work come see me at NW12-234 as we will be moving fast!}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\end{document}
