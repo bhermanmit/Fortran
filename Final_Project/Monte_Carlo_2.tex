@@ -1,0 +1,262 @@
+%%%%%%%%%%%%   LaTeX Preamble %%%%%%%%%%%%%%
+
+\documentclass{beamer}
+
+% list all packages
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{latexsym}
+\usepackage{color}
+\usepackage{mycommands}
+\usepackage{listings}
+\lstset{language=Fortran,
+        keywordstyle=\color{blue}\textbf,
+	commentstyle=\color[rgb]{0.133,0.545,0.133},
+	stringstyle=\color[rgb]{0.627,0.126,0.941},
+	breaklines=true,
+	showstringspaces=false,
+	frame=trBL
+       }
+
+% slide theme
+\usetheme{Berlin}
+\usecolortheme{mit}
+
+% Set Logo
+\pgfdeclareimage[height=0.5cm]{mit-logo}{../../mit-logo.pdf}
+\logo{\vspace{-0.25cm}\pgfuseimage{mit-logo}\hspace*{0.025cm}}
+
+% Include Custom environments
+% \input{../environments.tex}
+
+% Title Page
+\title[]{Monte Carlo Project Part 2}
+\author[]{22.901 Introduction to Computer Programming for Nuclear Engineers}
+\institute[\insertpagenumber]{}
+\date{January 30 - February 2, 2012} 
+
+% -----------------------------------------------------------------------------
+\begin{document}
+% -----------------------------------------------------------------------------
+
+% Inset title page
+\frame{\titlepage}
+%------------------------------------------------------------------------------
+\begin{frame}{Accesing pdfs}
+
+  \begin{itemize}
+    \item link in the pdf static library, already in Makefile
+    \vfill\item function: get\_particle\_pos - send it slab length, it returns x location
+    \vfill\item function: get\_particle\_mu - it returns mu (-1 to 1)
+    \vfill\item function: get\_scatter\_mu - it returns mu(-1 to 1)
+    \vfill\item function: get\_collision\_distance - send it the total xs and it returns the free-flight distance
+    \vfill\item function: get\_collision\_type - send it, respectfully, the absorption, scattering and total xs and it returns the collision id
+    \vfill\item ID=1 is Absorption and ID=2 is Scattering
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+\begin{frame}{Module \texttt{execute} - Subroutine \texttt{run\_problem}}
+
+  \begin{itemize}
+    \item call \texttt{initialize\_rng}
+    \vfill\item begin loop over the number of histories
+    \begin{itemize}
+        \vfill\item call \texttt{particle\_init}
+        \vfill\item call \texttt{reset\_tallies}
+        \vfill\item get the slab id for the neutron, call \texttt{get\_slab\_id}
+        \vfill\item begin loop \emph{while} the neutron is alive
+	\begin{itemize}
+	  \vfill\item call \texttt{transport}
+	  \vfill\item call \texttt{interaction} \emph{if} the neutron is still alive
+	\end{itemize}
+    \end{itemize}
+    \vfill\item call \texttt{bank\_tallies}
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}[allowframebreaks]{Module \texttt{execute} - Subroutine \texttt{transport}}
+
+  \begin{itemize}
+    \item declare 4 variables:
+    \begin{itemize}
+      \item real, \texttt{s} - free flight distance
+      \item real, \texttt{newx} - temporary new x location
+      \item real, \texttt{neig} - x location of nearest neighbor in direction
+      \item logical, \texttt{resample} - resample distance
+    \end{itemize}
+    \vfill\item set resample to true
+    \vfill\item begin a loop while resample is true
+    \begin{itemize}
+      \vfill\item access \texttt{get\_collision\_distance} function - see pdfs slide, set to free flight dist.
+      \vfill\item based on free-flight and neutron mu compute new x location
+      \vfill\item get nearest neighbor x in mu direction
+      \vfill\item check for a surface crossing
+	\vfill\item check if the neutron leaked, \alert{can only happen if slab\_id is 1 or n\_slabs}
+	  \vfill\item kill neutron
+	  \vfill\item set resample to false
+	\vfill\item record track length to tally (only free-flight to surface)
+	\vfill\item move neutron to neighbor surface
+	\vfill\item change the slab number
+      \vfill\item if the neutron did not cross a surface, it collided
+      \vfill\item record full free-flight to track tally
+      \vfill\item move neutron to new xlocation
+      \vfill\item set resample to false
+
+    \end{itemize}
+
+  \end{itemize}
+
+In summary: \\
+Find a new flight distance. Project it on the x axis with its angle of travel. Determine the nearest
+neighbor x location in the direction mu. If you cross a surface, then check if the neutron leaked out 
+of a system.  Note: you can only leak if the neutron is originating in slab 1 or the final slab.  This can
+be checked with the slab\_id. If you do leak, kill the particle and do not resample the distance.  If you cross
+a surface even if you leak, move the neutron to the that surface.  Compute the free-flight distance to that surface
+using the change in x and mu. Append that to the temporary tally.\\
+If you don't cross a surface then you have a collision. Do not resample, tally the free-flight distance and exit the 
+transport routine.
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Module \texttt{execute} - Subroutine \texttt{interaction}}
+
+  \begin{itemize}
+    \item make a local integer variable called \texttt{id}
+    \vfill\item add a 1/totalxs to the collision temp variable
+    \vfill\item get the reaction type by accessing the function \texttt{get\_collision\_type} - see pdfs slide
+    \vfill\item if the id is 1 then absorption happened - kill particle
+    \vfill\item if the id is not 1 then scattering and sample a new angle
+    \begin{itemize}
+      \item to get a new angle access \texttt{get\_scatter\_mu} - see pdfs slide
+    \end{itemize}
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Module \texttt{execute} - Subroutine \texttt{get\_slab\_id}}
+
+  \begin{itemize}
+    \item make a local integer variable called \texttt{id}
+    \vfill\item add a 1/totalxs to the collision temp variable
+    \vfill\item get the reaction type by accessing the function \texttt{get\_collision\_type} - see pdfs slide
+    \vfill\item if the id is 1 then absorption happened - kill particle
+    \vfill\item if the id is not 1 then scattering and sample a new angle
+    \begin{itemize}
+      \item to get a new angle access \texttt{get\_scatter\_mu} - see pdfs slide
+    \end{itemize}
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Module \texttt{execute} - Subroutine \texttt{reset\_tallies}}
+
+  \begin{itemize}
+    \item loop around slabs
+    \vfill\item call \texttt{tally\_reset} and send it a tally object for that slab
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Module \texttt{execute} - Subroutine \texttt{bank\_tallies}}
+
+  \begin{itemize}
+    \item loop around slabs
+    \vfill\item call \texttt{bank\_tally} and send it a tally object for that slab
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Module \texttt{execute} - Subroutine \texttt{print\_tallies}}
+
+  \begin{itemize}
+    \item loop around slabs
+    \vfill\item print out tally information by slab region 
+    \vfill\item e.g. Slab 1  Coll: mean+/-var  Track: mean+/-var
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Module \texttt{global} - Subroutine \texttt{allocate\_problem}}
+
+  \begin{itemize}
+    \item no arguements just allocated the tally object for the number of slabs
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Module \texttt{global} - Subroutine \texttt{free\_memory}}
+
+  \begin{itemize}
+    \item no arguements just deallocate the tally object
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Module \texttt{particle} - Subroutine \texttt{particle\_init}}
+
+  \begin{itemize}
+    \item arguments are the particle object and length of slab
+    \vfill\item call pdf function \texttt{get\_particle\_pos}
+    \vfill\item call pdf function \texttt{get\_particle\_mu}
+    \vfill\item make neutron alive
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Flux Volume Tallies}
+
+  \begin{itemize}
+    \item For each tally we have two varbles [s(c)1 and s(c)2] - used for mean and variance calculation
+    \vfill\item We also have temp. variable track and coll
+    \vfill\item During a neutrons life, events will be accumulated in track and coll
+    \vfill\item When life over we ``bank'' them into s(c)1 and s(c)2
+    \vfill\item Collision estimator (c)
+\[
+ \phi_{c} = \frac{1}{NX}\sum \frac{1}{\Sigma_{t}}
+\]
+    \item Track-length estimator (s)
+\[
+ \phi_{c} = \frac{1}{NX}\sum d
+\] \\
+\alert{$d$ is the free flight distance and I also use $s$ for this as well.}
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Module \texttt{tally} - Subroutine \texttt{tally\_reset}}
+
+  \begin{itemize}
+    \item set the track and coll variables in the tally instance to zero
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Module \texttt{tally} - Subroutine \texttt{bank\_tally}}
+
+  \begin{itemize}
+    \item Do the following math for the tally instance
+  \end{itemize}
+\[c1 = c1 + coll\] \\
+\[  c2 = c2 + coll^{2} \] \\
+\[  s1 = s1 + track \] \\
+\[  s2 = s2 + track^{2} \]
+
+\end{frame}
+%------------------------------------------------------------------------------
+\begin{frame}{Module \texttt{tally} - Subroutine \texttt{perform\_statistics}}
+  \begin{itemize}
+    \item pass in the tally instance, number of neutrons and volume
+    \vfill\item compute mean for each tally estimator
+\[
+ mean = \frac{s(c)1}{dx*nhist}\] \\
+\[
+ var = \frac{1}{nhist - 1}\left[ \frac{s(c)2}{nhist} - \left( \frac{s(c)1}{nhist} \right)^{2} \right ]
+\]
+
+  \end{itemize}
+
+\end{frame}
+%------------------------------------------------------------------------------
+\end{document}
